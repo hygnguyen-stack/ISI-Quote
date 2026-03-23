@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InterSolutions Quote Builder</title>
+<style>
+  :root {
+    --pink: #FF30AF;
+    --navy: #022949;
+    --navy-dark: #011a33;
+    --light-pink: #FFF0FA;
+    --white: #ffffff;
+    --gray: #f4f5f7;
+    --border: #e0e0e0;
+    --text: #333333;
+    --muted: #777777;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(150deg, var(--navy-dark), var(--navy) 60%, #064273);
+    min-height: 100vh;
+    padding: 40px 16px;
+    color: var(--text);
+  }
+
+  .wrap { max-width: 680px; margin: 0 auto; }
+
+  /* Header */
+  .logo {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .logo h1 {
+    font-size: 26px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 1px;
+  }
+  .logo h1 b { font-weight: 800; color: #fff; }
+  .logo small {
+    display: block;
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 2px;
+  }
+  .logo .accent {
+    display: block;
+    width: 50px;
+    height: 3px;
+    background: var(--pink);
+    margin: 10px auto 4px;
+    border-radius: 2px;
+  }
+  .logo .subtitle {
+    font-size: 11px;
+    color: var(--pink);
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Card */
+  .card {
+    background: var(--white);
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+  .card-bar {
+    height: 4px;
+    background: linear-gradient(90deg, var(--pink), var(--navy));
+  }
+  .card-body { padding: 28px; }
+
+  /* Form */
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    font-family: inherit;
+  }
+  input:focus { border-color: var(--pink); box-shadow: 0 0 0 3px rgba(255,48,175,0.15); }
+
+  .row { display: flex; gap: 14px; margin-bottom: 18px; }
+  .col { flex: 1; }
+  .mb { margin-bottom: 18px; }
+
+  /* Day buttons */
+  .days { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .day-btn {
+    padding: 6px 14px;
+    border-radius: 18px;
+    border: 2px solid var(--border);
+    background: var(--white);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .day-btn:hover { border-color: var(--pink); }
+  .day-btn.on {
+    background: var(--pink);
+    border-color: var(--pink);
+    color: var(--white);
+  }
+
+  /* Summary */
+  .hr { height: 1px; background: var(--border); margin: 0 0 18px; }
+  .summary {
+    background: var(--gray);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 20px;
+  }
+  .s-row { display: flex; justify-content: space-between; align-items: center; }
+  .s-label { font-size: 12px; color: var(--muted); }
+  .s-val { font-size: 14px; font-weight: 700; color: var(--navy); }
+  .s-val.pink { color: var(--pink); }
+
+  .total {
+    background: var(--navy);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .total .t-label { color: #fff; font-weight: 800; font-size: 15px; }
+  .total .t-val { color: var(--pink); font-weight: 800; font-size: 24px; }
+
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, var(--pink), #d81e90);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 16px rgba(255,48,175,0.25);
+  }
+  .btn:hover { box-shadow: 0 6px 24px rgba(255,48,175,0.35); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.5; cursor: wait; }
+
+  .foot {
+    text-align: center;
+    color: rgba(255,255,255,0.25);
+    font-size: 10px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 520px) {
+    .row { flex-direction: column; gap: 14px; }
+    .summary { grid-template-columns: 1fr; }
+    .total .t-val { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="logo">
+    <h1>Inter<b>Solutions</b></h1>
+    <small>Property Management Staffing Specialists</small>
+    <span class="accent"></span>
+    <span class="subtitle">Quote Builder</span>
+  </div>
+
+  <div class="card">
+    <div class="card-bar"></div>
+    <div class="card-body">
+
+      <div class="mb">
+        <label>Quote Date</label>
+        <input type="date" id="qDate">
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <label>Position Name</label>
+          <input type="text" id="qPos" value="Porter">
+        </div>
+        <div class="col">
+          <label>Bill Rate ($/hr)</label>
+          <input type="number" id="qRate" step="0.01" min="0" value="48.78">
+        </div>
+      </div>
+
+      <div class="mb">
+        <label>Work Days</label>
+        <div class="days" id="qDays"></div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <label>Start Time</label>
+          <input type="time" id="qStart" value="09:00">
+        </div>
+        <div class="col">
+          <label>End Time</label>
+          <input type="time" id="qEnd" value="18:00">
+        </div>
+        <div class="col">
+          <label>Lunch (min)</label>
+          <input type="number" id="qLunch" step="15" min="0" value="60">
+        </div>
+      </div>
+
+      <div class="mb">
+        <label>Duration (weeks)</label>
+        <input type="number" id="qWeeks" min="1" value="6" style="max-width:130px">
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="summary">
+        <div class="s-row"><span class="s-label">Hours / Day</span><span class="s-val" id="oHD">-</span></div>
+        <div class="s-row"><span class="s-label">Days / Week</span><span class="s-val" id="oDW">-</span></div>
+        <div class="s-row"><span class="s-label">Hours / Week</span><span class="s-val" id="oHW">-</span></div>
+        <div class="s-row"><span class="s-label">Total Hours</span><span class="s-val" id="oTH">-</span></div>
+        <div class="s-row"><span class="s-label">Weekly Cost</span><span class="s-val pink" id="oWC">-</span></div>
+        <div class="s-row"><span class="s-label">Total Cost</span><span class="s-val pink" id="oTC">-</span></div>
+      </div>
+
+      <div class="total">
+        <span class="t-label" id="oTL">ESTIMATED TOTAL</span>
+        <span class="t-val" id="oTA">$0.00</span>
+      </div>
+
+      <button class="btn" id="exportBtn" type="button">Export Word Document</button>
+    </div>
+  </div>
+
+  <p class="foot">InterSolutions LLC</p>
+</div>
+
+<!-- docx library for Word export -->
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
+
+<script>
+// === DATA ===
+var DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+var picked = ["Monday","Friday"];
+
+// === INIT ===
+document.getElementById("qDate").value = new Date().toISOString().split("T")[0];
+buildDays();
+calc();
+
+// bind all inputs
+var inputs = document.querySelectorAll("input");
+for (var i = 0; i < inputs.length; i++) {
+  inputs[i].addEventListener("input", calc);
+  inputs[i].addEventListener("change", calc);
+}
+document.getElementById("exportBtn").addEventListener("click", doExport);
+
+// === DAY BUTTONS ===
+function buildDays() {
+  var el = document.getElementById("qDays");
+  el.innerHTML = "";
+  for (var i = 0; i < DAYS.length; i++) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "day-btn" + (picked.indexOf(DAYS[i]) >= 0 ? " on" : "");
+    b.textContent = DAYS[i].substring(0, 3);
+    b.setAttribute("data-day", DAYS[i]);
+    b.addEventListener("click", toggleDay);
+    el.appendChild(b);
+  }
+}
+function toggleDay(e) {
+  var d = e.target.getAttribute("data-day");
+  var idx = picked.indexOf(d);
+  if (idx >= 0) picked.splice(idx, 1);
+  else picked.push(d);
+  buildDays();
+  calc();
+}
+
+// === CALCULATIONS ===
+function vals() {
+  var s = (document.getElementById("qStart").value || "09:00").split(":");
+  var en = (document.getElementById("qEnd").value || "18:00").split(":");
+  var lunch = parseInt(document.getElementById("qLunch").value) || 0;
+  var mins = (parseInt(en[0])*60 + parseInt(en[1])) - (parseInt(s[0])*60 + parseInt(s[1])) - lunch;
+  var hpd = Math.max(0, mins / 60);
+  var dpw = picked.length;
+  var hpw = hpd * dpw;
+  var wks = parseInt(document.getElementById("qWeeks").value) || 1;
+  var rate = parseFloat(document.getElementById("qRate").value) || 0;
+  var wc = hpw * rate;
+  var tc = wc * wks;
+  var sorted = [];
+  for (var i = 0; i < DAYS.length; i++) {
+    if (picked.indexOf(DAYS[i]) >= 0) sorted.push(DAYS[i]);
+  }
+  return {
+    pos: document.getElementById("qPos").value || "Porter",
+    rate: rate,
+    st: document.getElementById("qStart").value || "09:00",
+    et: document.getElementById("qEnd").value || "18:00",
+    lunch: lunch,
+    wks: wks,
+    dt: document.getElementById("qDate").value,
+    hpd: hpd, dpw: dpw, hpw: hpw,
+    th: hpw * wks,
+    wc: wc, tc: tc,
+    days: sorted,
+    ll: lunch >= 60 ? (lunch/60) + "-hour" : lunch + "-minute"
+  };
+}
+
+function calc() {
+  var v = vals();
+  document.getElementById("oHD").textContent = v.hpd.toFixed(1) + " hrs";
+  document.getElementById("oDW").textContent = v.dpw;
+  document.getElementById("oHW").textContent = v.hpw.toFixed(1) + " hrs";
+  document.getElementById("oTH").textContent = v.th.toFixed(1) + " hrs";
+  document.getElementById("oWC").textContent = money(v.wc);
+  document.getElementById("oTC").textContent = money(v.tc);
+  document.getElementById("oTL").textContent = "TOTAL (" + v.wks + " WEEK" + (v.wks !== 1 ? "S" : "") + ")";
+  document.getElementById("oTA").textContent = money(v.tc);
+}
+
+function money(n) {
+  return "$" + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function niceDate(d) {
+  var dt = new Date(d + "T12:00:00");
+  var months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  return months[dt.getMonth()] + " " + dt.getDate() + ", " + dt.getFullYear();
+}
+function niceTime(t) {
+  var p = t.split(":"); var h = parseInt(p[0]); var m = parseInt(p[1]);
+  return (h % 12 || 12) + ":" + (m < 10 ? "0" : "") + m + " " + (h >= 12 ? "PM" : "AM");
+}
+
+// === WORD EXPORT ===
+function doExport() {
+  var btn = document.getElementById("exportBtn");
+  btn.disabled = true;
+  btn.textContent = "GENERATING...";
+
+  // small delay so button updates visually
+  setTimeout(function() {
+    try {
+      buildDocx();
+    } catch(err) {
+      alert("Export failed: " + err.message);
+      console.error(err);
+      btn.disabled = false;
+      btn.textContent = "EXPORT WORD DOCUMENT";
+    }
+  }, 50);
+}
+
+function buildDocx() {
+  var v = vals();
+  var D = window.docx;
+
+  var PK = "FF30AF";
+  var NV = "022949";
+  var LP = "FFF0FA";
+
+  var bd = {style: D.BorderStyle.SINGLE, size: 1, color: "CCCCCC"};
+  var bds = {top:bd, bottom:bd, left:bd, right:bd};
+  var nb = {style: D.BorderStyle.NONE, size: 0};
+  var nbs = {top:nb, bottom:nb, left:nb, right:nb};
+  var pad = {top:80, bottom:80, left:120, right:120};
+
+  function hc(txt, w) {
+    return new D.TableCell({
+      borders:bds, width:{size:w, type:D.WidthType.DXA},
+      shading:{fill:NV, type:D.ShadingType.CLEAR}, margins:pad, verticalAlign:"center",
+      children:[new D.Paragraph({children:[new D.TextRun({text:txt, bold:true, font:"Arial", size:20, color:"FFFFFF"})]})]
+    });
+  }
+
+  function dc(txt, w, bold, shaded) {
+    return new D.TableCell({
+      borders:bds, width:{size:w, type:D.WidthType.DXA},
+      shading: shaded ? {fill:LP, type:D.ShadingType.CLEAR} : undefined,
+      margins:pad, verticalAlign:"center",
+      children:[new D.Paragraph({children:[new D.TextRun({text:txt, font:"Arial", size:20, bold:!!bold, color:"333333"})]})]
+    });
+  }
+
+  var kids = [
+    new D.Paragraph({spacing:{after:60}, children:[
+      new D.TextRun({text:"INTERSOLUTIONS LLC", font:"Arial", size:36, bold:true, color:NV})
+    ]}),
+    new D.Paragraph({spacing:{after:60}, children:[
+      new D.TextRun({text:"Property Management Staffing Specialists", font:"Arial", size:20, color:"666666", italics:true})
+    ]}),
+    new D.Paragraph({border:{bottom:{style:D.BorderStyle.SINGLE, size:6, color:PK, space:1}}, spacing:{after:360}, children:[]}),
+
+    new D.Paragraph({alignment:D.AlignmentType.CENTER, spacing:{before:120, after:200}, children:[
+      new D.TextRun({text:"STAFFING SERVICES QUOTE", font:"Arial", size:32, bold:true, color:NV})
+    ]}),
+
+    // Date
+    new D.Table({width:{size:9360, type:D.WidthType.DXA}, columnWidths:[2400,6960], rows:[
+      new D.TableRow({children:[
+        new D.TableCell({borders:nbs, width:{size:2400, type:D.WidthType.DXA}, margins:pad,
+          children:[new D.Paragraph({children:[new D.TextRun({text:"Date:", bold:true, font:"Arial", size:20, color:NV})]})]}),
+        new D.TableCell({borders:nbs, width:{size:6960, type:D.WidthType.DXA}, margins:pad,
+          children:[new D.Paragraph({children:[new D.TextRun({text:niceDate(v.dt), font:"Arial", size:20})]})]})
+      ]})
+    ]}),
+
+    // Position Details
+    new D.Paragraph({spacing:{before:360, after:200}, children:[
+      new D.TextRun({text:"Position Details", font:"Arial", size:24, bold:true, color:PK})
+    ]}),
+    new D.Table({width:{size:9360, type:D.WidthType.DXA}, columnWidths:[3120,6240], rows:[
+      new D.TableRow({children:[hc("Detail",3120), hc("Description",6240)]}),
+      new D.TableRow({children:[dc("Position",3120,true,false), dc(v.pos,6240,false,false)]}),
+      new D.TableRow({children:[dc("Schedule",3120,true,true), dc(v.days.join(", ")||"None",6240,false,true)]}),
+      new D.TableRow({children:[dc("Hours",3120,true,false), dc(niceTime(v.st)+" \u2013 "+niceTime(v.et)+" ("+v.ll+" unpaid lunch)",6240,false,false)]}),
+      new D.TableRow({children:[dc("Billable Hours/Day",3120,true,true), dc(v.hpd.toFixed(1)+" hours",6240,false,true)]}),
+      new D.TableRow({children:[dc("Billable Hours/Week",3120,true,false), dc(v.hpw.toFixed(1)+" hours",6240,false,false)]}),
+      new D.TableRow({children:[dc("Duration",3120,true,true), dc(v.wks+" week"+(v.wks!==1?"s":""),6240,false,true)]})
+    ]}),
+
+    // Billing Summary
+    new D.Paragraph({spacing:{before:360, after:200}, children:[
+      new D.TextRun({text:"Billing Summary", font:"Arial", size:24, bold:true, color:PK})
+    ]}),
+    new D.Table({width:{size:9360, type:D.WidthType.DXA}, columnWidths:[4680,4680], rows:[
+      new D.TableRow({children:[hc("Item",4680), hc("Amount",4680)]}),
+      new D.TableRow({children:[dc("Bill Rate",4680,true,false), dc(money(v.rate)+" / hour",4680,false,false)]}),
+      new D.TableRow({children:[dc("Weekly Cost ("+v.hpw.toFixed(1)+" hrs x "+money(v.rate)+")",4680,true,true), dc(money(v.wc),4680,false,true)]}),
+      new D.TableRow({children:[dc("Total Cost ("+v.wks+" week"+(v.wks!==1?"s":"")+")",4680,true,false), dc(money(v.tc),4680,false,false)]})
+    ]}),
+
+    // Total bar
+    new D.Paragraph({spacing:{before:240}, children:[]}),
+    new D.Table({width:{size:9360, type:D.WidthType.DXA}, columnWidths:[4680,4680], rows:[
+      new D.TableRow({children:[
+        new D.TableCell({borders:bds, width:{size:4680, type:D.WidthType.DXA},
+          shading:{fill:NV, type:D.ShadingType.CLEAR}, margins:{top:120, bottom:120, left:120, right:120},
+          children:[new D.Paragraph({children:[
+            new D.TextRun({text:"TOTAL ("+v.wks+" WEEK"+(v.wks!==1?"S":"")+")", bold:true, font:"Arial", size:24, color:"FFFFFF"})
+          ]})]}),
+        new D.TableCell({borders:bds, width:{size:4680, type:D.WidthType.DXA},
+          shading:{fill:NV, type:D.ShadingType.CLEAR}, margins:{top:120, bottom:120, left:120, right:120},
+          children:[new D.Paragraph({alignment:D.AlignmentType.RIGHT, children:[
+            new D.TextRun({text:money(v.tc), bold:true, font:"Arial", size:28, color:PK})
+          ]})]})
+      ]})
+    ]})
+  ];
+
+  var doc = new D.Document({
+    styles:{default:{document:{run:{font:"Arial", size:20}}}},
+    sections:[{
+      properties:{page:{size:{width:12240, height:15840}, margin:{top:1440, right:1440, bottom:1440, left:1440}}},
+      children: kids
+    }]
+  });
+
+  D.Packer.toBlob(doc).then(function(blob) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "InterSolutions_" + v.pos.replace(/\s+/g,"_") + "_Quote.docx";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    var btn = document.getElementById("exportBtn");
+    btn.disabled = false;
+    btn.textContent = "EXPORT WORD DOCUMENT";
+  });
+}
+</script>
+</body>
+</html>
